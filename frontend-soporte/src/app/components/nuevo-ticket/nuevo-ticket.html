@@ -1,1 +1,43 @@
-<p>nuevo-ticket works!</p>
+<div style="max-width: 600px; margin: 0 auto; background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+  <h2>➕ Registrar Nuevo Ticket</h2>
+  <form (ngSubmit)="guardar()">
+    <div style="margin-bottom: 1rem;">
+      <label style="display: block; font-weight: bold; margin-bottom: 5px;">Solicitante *</label>
+      <input type="text" [(ngModel)]="ticket.solicitante" name="solicitante" required style="width: 100%; padding: 8px; box-sizing: border-box;" placeholder="Nombre de la persona">
+    </div>
+
+    <div style="margin-bottom: 1rem;">
+      <label style="display: block; font-weight: bold; margin-bottom: 5px;">Asunto *</label>
+      <input type="text" [(ngModel)]="ticket.asunto" name="asunto" required style="width: 100%; padding: 8px; box-sizing: border-box;" placeholder="Resumen del problema">
+    </div>
+
+    <div style="margin-bottom: 1rem;">
+      <label style="display: block; font-weight: bold; margin-bottom: 5px;">Categoría</label>
+      <select [(ngModel)]="ticket.categoria" name="categoria" style="width: 100%; padding: 8px;">
+        <option value="Soporte General">Soporte General</option>
+        <option value="Hardware">Hardware</option>
+        <option value="Software">Software</option>
+        <option value="Redes">Redes</option>
+      </select>
+    </div>
+
+    <div style="margin-bottom: 1rem;">
+      <label style="display: block; font-weight: bold; margin-bottom: 5px;">Prioridad</label>
+      <select [(ngModel)]="ticket.prioridad" name="prioridad" style="width: 100%; padding: 8px;">
+        <option value="Baja">Baja</option>
+        <option value="Media">Media</option>
+        <option value="Alta">Alta</option>
+      </select>
+    </div>
+
+    <div style="margin-bottom: 1rem;">
+      <label style="display: block; font-weight: bold; margin-bottom: 5px;">Descripción</label>
+      <textarea [(ngModel)]="ticket.descripcion" name="descripcion" rows="4" style="width: 100%; padding: 8px; box-sizing: border-box;"></textarea>
+    </div>
+
+    <div style="display: flex; gap: 10px;">
+      <button type="submit" style="background-color: #198754; color: white; border: none; padding: 10px 20px; border-radius: 4px; font-weight: bold; cursor: pointer;">Guardar Ticket</button>
+      <a routerLink="/tickets" style="background-color: #6c757d; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Cancelar</a>
+    </div>
+  </form>
+</div>

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { TicketService } from '../../services/ticket';
@@ -13,6 +13,8 @@ import { Ticket } from '../../models/ticket';
 })
 export class TicketsComponent implements OnInit {
   private ticketService = inject(TicketService);
+  private cdr = inject(ChangeDetectorRef);
+  
   tickets: Ticket[] = [];
 
   ngOnInit(): void {
@@ -21,7 +23,10 @@ export class TicketsComponent implements OnInit {
 
   cargarTickets(): void {
     this.ticketService.getTickets().subscribe({
-      next: (data) => (this.tickets = data),
+      next: (data) => {
+        this.tickets = data;
+        this.cdr.detectChanges(); // Notifica a Angular Zoneless que dibuje la tabla
+      },
       error: (err) => console.error('Error al obtener los tickets:', err)
     });
   }
