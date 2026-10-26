@@ -1,0 +1,7 @@
+.badge { display:inline-block; padding:3px 10px; border-radius:12px; font-size:0.8rem; font-weight:bold; color:white; }
+.prioridad-alta { background:#dc3545; }
+.prioridad-media { background:#fd7e14; }
+.prioridad-baja { background:#6c757d; }
+.estado-abierto { background:#0d6efd; }
+.estado-en-proceso { background:#ffc107; color:#000; }
+.estado-cerrado { background:#198754; }

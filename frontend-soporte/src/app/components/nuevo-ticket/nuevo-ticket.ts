@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -15,6 +15,9 @@ import { Ticket } from '../../models/ticket';
 export class NuevoTicketComponent {
   private ticketService = inject(TicketService);
   private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
+
+  error = '';
 
   ticket: Ticket = {
     asunto: '',
@@ -26,8 +29,9 @@ export class NuevoTicketComponent {
   };
 
   guardar(): void {
-    if (!this.ticket.asunto || !this.ticket.solicitante) {
-      alert('Por favor completa los campos obligatorios.');
+    this.error = '';
+    if (!this.ticket.asunto.trim() || !this.ticket.solicitante.trim() || !this.ticket.descripcion.trim()) {
+      this.error = 'Complete solicitante, asunto y descripción.';
       return;
     }
 
@@ -36,7 +40,13 @@ export class NuevoTicketComponent {
         alert('Ticket creado con éxito');
         this.router.navigate(['/tickets']);
       },
-      error: (err) => console.error('Error al crear el ticket:', err)
+      error: (err) => {
+        console.error('Error al crear el ticket:', err);
+        this.error = err.status === 0
+          ? 'No hay conexión con el servidor (¿está encendida la API?).'
+          : (err.error?.mensaje ?? 'No se pudo crear el ticket.');
+        this.cdr.detectChanges();
+      }
     });
   }
 }

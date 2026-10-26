@@ -6,5 +6,5 @@ export interface Ticket {
   categoria: string;
   prioridad: string;
   estado: string;
-  fechaCreacion?: string;
+  fechaRegistro?: string;
 }

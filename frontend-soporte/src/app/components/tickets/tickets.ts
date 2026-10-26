@@ -14,20 +14,26 @@ import { Ticket } from '../../models/ticket';
 export class TicketsComponent implements OnInit {
   private ticketService = inject(TicketService);
   private cdr = inject(ChangeDetectorRef);
-  
+
   tickets: Ticket[] = [];
+  error = '';
 
   ngOnInit(): void {
     this.cargarTickets();
   }
 
   cargarTickets(): void {
+    this.error = '';
     this.ticketService.getTickets().subscribe({
       next: (data) => {
         this.tickets = data;
-        this.cdr.detectChanges(); // Notifica a Angular Zoneless que dibuje la tabla
+        this.cdr.detectChanges();
       },
-      error: (err) => console.error('Error al obtener los tickets:', err)
+      error: (err) => {
+        console.error('Error al obtener los tickets:', err);
+        this.error = 'No se pudieron cargar los tickets. Verifique que la API esté encendida.';
+        this.cdr.detectChanges();
+      }
     });
   }
 
@@ -39,8 +45,15 @@ export class TicketsComponent implements OnInit {
           alert('Ticket eliminado correctamente');
           this.cargarTickets();
         },
-        error: (err) => console.error('Error al eliminar el ticket:', err)
+        error: (err) => {
+          console.error('Error al eliminar el ticket:', err);
+          alert('No se pudo eliminar el ticket. Intente nuevamente.');
+        }
       });
     }
+  }
+
+  clase(valor: string): string {
+    return valor.toLowerCase().replace(/\s+/g, '-');
   }
 }

@@ -2,223 +2,169 @@
 
 ## Descripción del Proyecto
 
-Aplicación **Full-Stack** desarrollada para la gestión de tickets de soporte técnico.
-
-El sistema permite **crear, visualizar, editar y eliminar tickets** mediante una interfaz web desarrollada en Angular, conectada a una API REST implementada con Node.js y Express, utilizando Microsoft SQL Server como base de datos relacional.
+Aplicación web **full stack** para gestionar tickets de soporte técnico. Permite **registrar, listar, consultar, editar y eliminar** tickets desde una interfaz Angular, que se comunica con una API REST (Node.js + Express) conectada a una base de datos Microsoft SQL Server. La información se mantiene después de recargar la página y de reiniciar la API.
 
 ## Autor
 
-**Kevin Carrasco Garrido**
+**Kevin Carrasco Garrido** — Electivo Angular, Instituto Profesional Virginio Gómez, Sede Chillán.
 
 ## Tecnologías Utilizadas
 
-| Área                      | Tecnologías                                                        |
-| ------------------------- | ------------------------------------------------------------------ |
-| **Frontend**              | Angular (Standalone Components, Zoneless, ChangeDetectorRef, RxJS) |
-| **Backend**               | Node.js, Express.js                                                |
-| **Base de Datos**         | Microsoft SQL Server                                               |
-| **Control de Versiones**  | Git y GitHub                                                       |
-| **Convención de Commits** | Conventional Commits                                               |
+| Área | Tecnologías |
+| --- | --- |
+| Frontend | Angular 22 (componentes standalone, zoneless, Router, HttpClient, formularios con `ngModel`) |
+| Backend | Node.js, Express 5, paquete `mssql` |
+| Base de datos | Microsoft SQL Server |
+| Control de versiones | Git y GitHub (Conventional Commits) |
 
----
+## Requisitos previos
+
+- Node.js y npm.
+- Angular CLI 22 (`npm install -g @angular/cli`).
+- Microsoft SQL Server activo, con TCP/IP habilitado en el puerto 1433, y SSMS (o una herramienta equivalente) para ejecutar el script.
 
 ## Instrucciones de Instalación
 
-### 1. Clonar el repositorio
-
-Clonar el proyecto desde GitHub:
-
 ```bash
 git clone https://github.com/kacer-99/Proyecto-Soporte.git
-```
-
-Ingresar a la carpeta del proyecto:
-
-```bash
 cd Proyecto-Soporte
-```
 
-### 2. Instalar dependencias del Backend
-
-Ingresar a la carpeta correspondiente al servidor:
-
-```bash
+# Dependencias del backend
 cd backend-soporte
-```
-
-Instalar las dependencias:
-
-```bash
 npm install
-```
 
-### 3. Instalar dependencias del Frontend
-
-Desde la carpeta del backend, ingresar al frontend:
-
-```bash
+# Dependencias del frontend
 cd ../frontend-soporte
-```
-
-Instalar las dependencias:
-
-```bash
 npm install
 ```
 
----
+### Base de datos
+
+1. Abrir SQL Server Management Studio y conectarse al servidor local.
+2. Abrir y ejecutar el script **`database/SoporteTecnico.sql`**. Crea la base de datos `SoporteTecnico` y la tabla `Tickets`.
+3. Comprobar con `SELECT * FROM Tickets;`.
+
+### Conexión
+
+El backend se conecta con estos datos (definidos en `backend-soporte/index.js`): servidor `localhost`, puerto `1433`, usuario `sa`, contraseña `alumnos`, base `SoporteTecnico`. Si en otro computador son distintos, se deben modificar en el objeto `dbConfig` de ese archivo.
+
+
+## Si falla la conexión a SQL Server
+
+El backend usa: servidor `localhost`, puerto `1433`, usuario `sa`, clave `alumnos`.
+Si aparece "Error conectando a la base de datos":
+1. Verificar que SQL Server esté activo y que exista la base `SoporteTecnico` (ejecutar `database/SoporteTecnico.sql`).
+2. Habilitar TCP/IP (puerto 1433) en SQL Server Configuration Manager y reiniciar el servicio.
+3. Usar autenticación mixta y comprobar que `sa` esté habilitado con la clave configurada.
+4. Si los datos son distintos, modificarlos en `dbConfig` dentro de `backend-soporte/index.js`.
+
 
 ## Instrucciones de Ejecución
 
-Para ejecutar correctamente el proyecto, es necesario tener configurada y disponible la conexión con Microsoft SQL Server.
+El orden es: SQL Server activo → backend → frontend. Se necesitan dos terminales.
 
-### Backend
-
-Abrir una terminal en la carpeta `backend-soporte` y ejecutar:
+**Terminal 1 — Backend** (carpeta `backend-soporte`):
 
 ```bash
-npm start
+node index.js
 ```
 
-El servidor estará disponible en:
+Debe mostrar `Conectado a SQL Server` y quedar disponible en <http://localhost:3000/api/tickets>.
 
-**[http://localhost:3000/api/tickets](http://localhost:3000/api/tickets)**
-
-### Frontend
-
-Abrir otra terminal en la carpeta `frontend-soporte` y ejecutar:
+**Terminal 2 — Frontend** (carpeta `frontend-soporte`):
 
 ```bash
 ng serve
 ```
 
-La aplicación web estará disponible en:
-
-**[http://localhost:4200](http://localhost:4200)**
-
-> **Nota:** El backend debe estar en ejecución para que el frontend pueda consultar y modificar los tickets almacenados en la base de datos.
-
----
+Abrir <http://localhost:4200>.
 
 ## Estructura General del Proyecto
 
 ```text
 Proyecto-Soporte/
-│
+├── database/
+│   └── SoporteTecnico.sql        # Script de creación de la base de datos y la tabla
 ├── backend-soporte/
-│   ├── src/                  # Rutas, controladores y lógica de API REST
-│   ├── package.json          # Dependencias del backend
-│   └── server.js             # Configuración y ejecución del servidor
-│
+│   ├── index.js                  # API REST (Express + mssql): GET, POST, PUT, DELETE
+│   └── package.json
 └── frontend-soporte/
-    ├── src/
-    │   └── app/              # Componentes, servicios HTTP y rutas
-    └── package.json          # Dependencias del frontend
+    └── src/app/
+        ├── components/
+        │   ├── cabecera/         # Encabezado
+        │   ├── menu/             # Menú de navegación
+        │   ├── tickets/          # Listado y eliminación de tickets
+        │   ├── nuevo-ticket/     # Formulario de registro
+        │   └── editar-ticket/    # Formulario de edición
+        ├── models/ticket.ts      # Interfaz Ticket
+        ├── services/ticket.ts    # TicketService: comunicación HTTP con la API
+        ├── app.routes.ts         # Rutas de la aplicación
+        └── app.config.ts         # Configuración (HttpClient, Router, zoneless)
 ```
 
----
+## API REST
+
+| Método | Ruta | Acción |
+| --- | --- | --- |
+| GET | `/api/tickets` | Listar todos los tickets |
+| GET | `/api/tickets/:id` | Obtener un ticket |
+| POST | `/api/tickets` | Crear un ticket |
+| PUT | `/api/tickets/:id` | Actualizar un ticket |
+| DELETE | `/api/tickets/:id` | Eliminar un ticket |
+
+Las consultas son **parametrizadas** (`.input()` de `mssql`): los datos del usuario no se concatenan en el SQL. La API responde con códigos 200, 201, 400 (datos incompletos), 404 (no existe) y 500 (error interno), con un mensaje en JSON.
+
+## Modelo de datos (tabla `Tickets`)
+
+`id` (autoincremental), `asunto`, `solicitante`, `descripcion`, `categoria`, `prioridad`, `estado` y `fechaRegistro` (se asigna automáticamente con `GETDATE()`).
 
 ## Funcionalidades Implementadas
 
-El sistema cuenta con las siguientes funcionalidades:
-
-| Funcionalidad                    | Descripción                                                                                |
-| -------------------------------- | ------------------------------------------------------------------------------------------ |
-| **Listado de Tickets**           | Permite visualizar los tickets almacenados en SQL Server mediante consultas a la API REST. |
-| **Creación de Tickets**          | Formulario para registrar nuevos tickets con validaciones de datos.                        |
-| **Edición de Tickets**           | Permite modificar el estado y otros campos de los tickets existentes.                      |
-| **Eliminación de Tickets**       | Permite eliminar registros almacenados en la base de datos.                                |
-| **Actualización de la Interfaz** | Refleja los cambios realizados sin necesidad de recargar manualmente el navegador.         |
-
----
+- Listado de tickets obtenidos desde SQL Server, con su fecha de registro.
+- Prioridad y estado con distintivos de color.
+- Registro de tickets con validación de campos obligatorios (solicitante, asunto y descripción).
+- Edición de tickets: el formulario se carga con los datos actuales.
+- Eliminación con confirmación previa.
+- Mensajes de error visibles cuando la API no responde o rechaza la operación.
+- Navegación con rutas: `/tickets`, `/nuevo` y `/editar/:id`.
 
 ## Pruebas Realizadas
 
-### Pruebas de Integración
-
-Se realizaron verificaciones manuales de los endpoints HTTP utilizados por la API REST:
-
-| Método HTTP | Operación                          |
-| ----------- | ---------------------------------- |
-| `GET`       | Consultar tickets existentes.      |
-| `POST`      | Registrar nuevos tickets.          |
-| `PUT`       | Actualizar información de tickets. |
-| `DELETE`    | Eliminar tickets existentes.       |
-
-Estas pruebas permitieron comprobar la comunicación entre el frontend, el backend y la base de datos SQL Server.
-
-### Pruebas Funcionales
-
-Se realizaron las siguientes comprobaciones:
-
-- Navegación entre las distintas rutas de la aplicación.
-- Visualización de los tickets registrados.
-- Creación y edición de tickets mediante formularios.
-- Eliminación de registros.
-- Actualización asíncrona de la interfaz sin recargar el navegador.
-- Verificación de la persistencia de los datos en SQL Server.
-
----
+| Prueba | Cómo se probó | Resultado esperado | Resultado |
+| --- | --- | --- | --- |
+| Inicio | Se siguió este README con SQL Server, backend y frontend | Los tres componentes funcionan | si |
+| GET | Abrir `/tickets` | Se muestran los tickets de la base | si |
+| POST | Crear un ticket y consultar `SELECT * FROM Tickets` | El ticket aparece en la base | si |
+| PUT | Editar un ticket y recargar la página | El cambio permanece | si |
+| DELETE | Eliminar un ticket y confirmar | Desaparece de la lista y de la base | si |
+| Validación | Guardar el formulario con campos vacíos | Aparece el mensaje y no se guarda | si |
+| Error | Detener el backend y abrir `/tickets` | Aparece el mensaje de error con "Reintentar" | si |
+| Persistencia | Reiniciar el backend y recargar | Los tickets siguen existiendo | si |
 
 ## Declaración de Uso de Inteligencia Artificial (IA)
 
-En cumplimiento con las normativas de la evaluación, declaro el uso de herramientas de Inteligencia Artificial durante el desarrollo del proyecto.
+### 1. Herramientas utilizadas
 
-### 1. Herramientas de IA utilizadas
-
-- **Gemini (Google).**
+- **Gemini (Google)**
+- **Claude (Anthropic)**
 
 ### 2. Actividades para las que fueron utilizadas
 
-La herramienta de IA se utilizó como apoyo en las siguientes actividades:
-
-- Asistencia en la estructuración inicial de la arquitectura del proyecto, utilizando Angular Standalone y una API REST desarrollada con Node.js.
-- Orientación para resolver problemas relacionados con la reactividad y actualización de la interfaz del frontend.
-- Asesoría sobre la aplicación de la convención **Conventional Commits** para el control de versiones.
+- **Gemini:** apoyo en la estructura inicial del proyecto (Angular standalone y API con Node.js), en la actualización de la vista con `provideZonelessChangeDetection` y `ChangeDetectorRef`, en la convención Conventional Commits y en la primera versión del README.
+- **Claude:** revisión del proyecto contra la rúbrica de la evaluación y orientación en las correcciones finales: script SQL, validación de la descripción, mensajes de error visibles, corrección de la carga de datos en el formulario de edición, prioridad y ajuste orden del readme.
 
 ### 3. Código, documentación y depuración que recibieron apoyo de IA
 
-**Depuración (Debugging):**
+- **Depuración:** la vista que no se actualizaba al crear o editar (Gemini) y el formulario de edición que no mostraba los datos al abrirse (Claude).
+- **Código:** la configuración zoneless, el uso de `ChangeDetectorRef`, las validaciones y el manejo de errores.
+- **Documentación:** el README y el script SQL.
 
-Se utilizó IA para analizar errores relacionados con la actualización de la tabla del frontend, específicamente cuando los cambios realizados al crear o editar un ticket no se reflejaban inmediatamente en la interfaz.
+### 4. Modificaciones, verificaciones y adaptaciones realizadas por mí
 
-**Código:**
-
-Se recibieron sugerencias específicas para:
-
-- Implementar `provideZonelessChangeDetection` en el archivo `app.config.ts`.
-- Utilizar `ChangeDetectorRef` en los componentes de Angular para controlar la actualización de la vista.
-
-**Documentación:**
-
-Se utilizó IA como apoyo para organizar el contenido del archivo `README.md`, aplicar el formato Markdown y estructurar las secciones de documentación del proyecto.
-
-### 4. Modificaciones, verificaciones y adaptaciones realizadas
-
-Las sugerencias proporcionadas por la herramienta de IA fueron revisadas, adaptadas e integradas manualmente según los requerimientos del sistema.
-
-Entre las actividades realizadas de forma independiente se encuentran:
-
-- Adaptación del código sugerido a la lógica de negocio del proyecto.
-- Verificación manual del funcionamiento de los endpoints HTTP.
-- Comprobación de la comunicación entre frontend, backend y base de datos.
-- Pruebas funcionales de la interfaz gráfica.
-- Validación de las soluciones implementadas para la actualización asíncrona de los datos.
-
-La IA fue utilizada como herramienta de apoyo durante el desarrollo, mientras que la integración, adaptación y verificación de las funcionalidades se realizaron manualmente.
-
----
-
-## Estado del Proyecto
-
-**Funcionalidades principales implementadas:** creación, visualización, edición y eliminación de tickets de soporte técnico.
-
-El proyecto permite gestionar los registros mediante una interfaz web conectada a una API REST y una base de datos SQL Server.
+Revisé y adapté cada sugerencia al proyecto, ejecuté el script SQL en mi SQL Server y probé manualmente todas las operaciones (GET, POST, PUT, DELETE), la validación, el manejo de errores y la persistencia de los datos.
 
 ## Justificación de la Elección de Base de Datos (SQL Server)
 
-La elección de **Microsoft SQL Server** para este proyecto se fundamenta en los siguientes criterios técnicos y prácticos:
-
-1. **Aprovechamiento de Infraestructura y Entorno Existente:** Se optó por reutilizar un entorno local de SQL Server previamente configurado y operativo. Esto permitió optimizar los tiempos de inicio del proyecto, reduciendo la sobrecarga de configuración inicial y enfocando el desarrollo directamente en la integración de la API REST y el cliente Angular.
-2. **Robustez y Estándar Empresarial:** SQL Server es una solución consolidada en el mercado con soporte nativo para transacciones complejas, integridad referencial y alta disponibilidad, garantizando un manejo confiable de la información de los tickets.
-3. **Compatibilidad con el Stack de Desarrollo:** Su integración con el ecosistema de Node.js permite una comunicación fluida y un rendimiento eficiente en las consultas asíncronas.
+1. **Entorno existente:** ya contaba con un SQL Server local configurado, lo que permitió centrarme en la integración entre Angular, la API y la base de datos.
+2. **Robustez:** es un motor relacional con transacciones, integridad referencial e índices, adecuado para registrar tickets de forma confiable.
+3. **Compatibilidad:** el paquete `mssql` permite consultas parametrizadas desde Node.js de manera sencilla.

@@ -1,5 +1,6 @@
 <div style="max-width: 600px; margin: 0 auto; background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
   <h2>✏️ Editar Ticket #{{ id }}</h2>
+  <div *ngIf="error" style="background:#f8d7da; color:#842029; padding:10px; border-radius:4px; margin-bottom:1rem;">{{ error }}</div>
   <form (ngSubmit)="actualizar()">
     <div style="margin-bottom: 1rem;">
       <label style="display: block; font-weight: bold; margin-bottom: 5px;">Solicitante</label>

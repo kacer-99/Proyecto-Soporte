@@ -1,5 +1,8 @@
 <div style="max-width: 600px; margin: 0 auto; background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
   <h2>➕ Registrar Nuevo Ticket</h2>
+
+  <div *ngIf="error" style="background:#f8d7da; color:#842029; padding:10px; border-radius:4px; margin-bottom:1rem;">{{ error }}</div>
+
   <form (ngSubmit)="guardar()">
     <div style="margin-bottom: 1rem;">
       <label style="display: block; font-weight: bold; margin-bottom: 5px;">Solicitante *</label>
@@ -31,7 +34,7 @@
     </div>
 
     <div style="margin-bottom: 1rem;">
-      <label style="display: block; font-weight: bold; margin-bottom: 5px;">Descripción</label>
+      <label style="display: block; font-weight: bold; margin-bottom: 5px;">Descripción *</label>
       <textarea [(ngModel)]="ticket.descripcion" name="descripcion" rows="4" style="width: 100%; padding: 8px; box-sizing: border-box;"></textarea>
     </div>
 

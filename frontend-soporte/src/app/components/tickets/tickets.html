@@ -3,6 +3,10 @@
   <a routerLink="/nuevo" style="background-color: #198754; color: white; padding: 0.5rem 1rem; text-decoration: none; border-radius: 4px; font-weight: bold;">+ Nuevo Ticket</a>
 </div>
 
+<div *ngIf="error" style="background:#f8d7da; color:#842029; padding:12px; border-radius:4px; margin-bottom:1rem;">
+  {{ error }} <button (click)="cargarTickets()">Reintentar</button>
+</div>
+
 <table style="width: 100%; border-collapse: collapse; box-shadow: 0 0 10px rgba(0,0,0,0.08); background-color: white;">
   <thead>
     <tr style="background-color: #212529; color: white; text-align: left;">
@@ -12,6 +16,7 @@
       <th style="padding: 12px;">Categoría</th>
       <th style="padding: 12px;">Prioridad</th>
       <th style="padding: 12px;">Estado</th>
+      <th style="padding: 12px;">Fecha de registro</th>
       <th style="padding: 12px;">Acciones</th>
     </tr>
   </thead>
@@ -21,15 +26,16 @@
       <td style="padding: 12px;">{{ t.solicitante }}</td>
       <td style="padding: 12px;">{{ t.asunto }}</td>
       <td style="padding: 12px;">{{ t.categoria }}</td>
-      <td style="padding: 12px;">{{ t.prioridad }}</td>
-      <td style="padding: 12px;">{{ t.estado }}</td>
+      <td style="padding: 12px;"><span class="badge" [ngClass]="'prioridad-' + clase(t.prioridad)">{{ t.prioridad }}</span></td>
+      <td style="padding: 12px;"><span class="badge" [ngClass]="'estado-' + clase(t.estado)">{{ t.estado }}</span></td>
+      <td style="padding: 12px;">{{ t.fechaRegistro | date:'dd/MM/yyyy HH:mm' }}</td>
       <td style="padding: 12px;">
         <a [routerLink]="['/editar', t.id]" style="background-color: #ffc107; color: black; padding: 5px 10px; text-decoration: none; border-radius: 4px; font-size: 0.85rem; margin-right: 5px;">Editar</a>
         <button (click)="eliminar(t.id)" style="background-color: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 0.85rem; cursor: pointer;">Eliminar</button>
       </td>
     </tr>
-    <tr *ngIf="tickets.length === 0">
-      <td colspan="7" style="text-align: center; padding: 20px; color: #6c757d;">No hay tickets registrados.</td>
+    <tr *ngIf="tickets.length === 0 && !error">
+      <td colspan="8" style="text-align: center; padding: 20px; color: #6c757d;">No hay tickets registrados.</td>
     </tr>
   </tbody>
 </table>
