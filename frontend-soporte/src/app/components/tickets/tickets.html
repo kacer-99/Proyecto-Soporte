@@ -1,41 +1,55 @@
-<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-  <h3 style="margin: 0;">📋 Gestión de Tickets de Soporte</h3>
-  <a routerLink="/nuevo" style="background-color: #198754; color: white; padding: 0.5rem 1rem; text-decoration: none; border-radius: 4px; font-weight: bold;">+ Nuevo Ticket</a>
-</div>
+<section>
+  <div class="encabezado">
+    <h2>📋 Gestión de Tickets de Soporte</h2>
+    <a routerLink="/nuevo" class="btn btn-verde">+ Nuevo Ticket</a>
+  </div>
 
-<div *ngIf="error" style="background:#f8d7da; color:#842029; padding:12px; border-radius:4px; margin-bottom:1rem;">
-  {{ error }} <button (click)="cargarTickets()">Reintentar</button>
-</div>
+  @if (cargando) {
+    <p>Cargando tickets...</p>
+  }
 
-<table style="width: 100%; border-collapse: collapse; box-shadow: 0 0 10px rgba(0,0,0,0.08); background-color: white;">
-  <thead>
-    <tr style="background-color: #212529; color: white; text-align: left;">
-      <th style="padding: 12px;">ID</th>
-      <th style="padding: 12px;">Solicitante</th>
-      <th style="padding: 12px;">Asunto</th>
-      <th style="padding: 12px;">Categoría</th>
-      <th style="padding: 12px;">Prioridad</th>
-      <th style="padding: 12px;">Estado</th>
-      <th style="padding: 12px;">Fecha de registro</th>
-      <th style="padding: 12px;">Acciones</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let t of tickets" style="border-bottom: 1px solid #dee2e6;">
-      <td style="padding: 12px;">{{ t.id }}</td>
-      <td style="padding: 12px;">{{ t.solicitante }}</td>
-      <td style="padding: 12px;">{{ t.asunto }}</td>
-      <td style="padding: 12px;">{{ t.categoria }}</td>
-      <td style="padding: 12px;"><span class="badge" [ngClass]="'prioridad-' + clase(t.prioridad)">{{ t.prioridad }}</span></td>
-      <td style="padding: 12px;"><span class="badge" [ngClass]="'estado-' + clase(t.estado)">{{ t.estado }}</span></td>
-      <td style="padding: 12px;">{{ t.fechaRegistro | date:'dd/MM/yyyy HH:mm' }}</td>
-      <td style="padding: 12px;">
-        <a [routerLink]="['/editar', t.id]" style="background-color: #ffc107; color: black; padding: 5px 10px; text-decoration: none; border-radius: 4px; font-size: 0.85rem; margin-right: 5px;">Editar</a>
-        <button (click)="eliminar(t.id)" style="background-color: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 0.85rem; cursor: pointer;">Eliminar</button>
-      </td>
-    </tr>
-    <tr *ngIf="tickets.length === 0 && !error">
-      <td colspan="8" style="text-align: center; padding: 20px; color: #6c757d;">No hay tickets registrados.</td>
-    </tr>
-  </tbody>
-</table>
+  @if (error) {
+    <div class="mensaje mensaje-error">
+      <p>{{ error }}</p>
+      <button type="button" class="btn btn-gris" (click)="cargarTickets()">Reintentar</button>
+    </div>
+  }
+
+  @if (!cargando && !error) {
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Solicitante</th>
+          <th>Asunto</th>
+          <th>Categoría</th>
+          <th>Prioridad</th>
+          <th>Estado</th>
+          <th>Fecha de registro</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (t of tickets; track t.id) {
+          <tr>
+            <td>{{ t.id }}</td>
+            <td>{{ t.solicitante }}</td>
+            <td>{{ t.asunto }}</td>
+            <td>{{ t.categoria }}</td>
+            <td><span class="badge prioridad-{{ clase(t.prioridad) }}">{{ t.prioridad }}</span></td>
+            <td><span class="badge estado-{{ clase(t.estado) }}">{{ t.estado }}</span></td>
+            <td>{{ t.fechaRegistro | date: 'dd/MM/yyyy HH:mm' }}</td>
+            <td class="acciones">
+              <a [routerLink]="['/editar', t.id]" class="btn btn-amarillo">Editar</a>
+              <button type="button" class="btn btn-rojo" (click)="eliminar(t.id)">Eliminar</button>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="8" class="vacio">No hay tickets registrados.</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</section>

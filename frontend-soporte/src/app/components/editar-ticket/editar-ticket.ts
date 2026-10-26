@@ -1,72 +1,93 @@
-import { Component, OnInit, inject,  ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TicketService } from '../../services/ticket';
-import { Ticket } from '../../models/ticket';
 
 @Component({
   selector: 'app-editar-ticket',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './editar-ticket.html',
   styleUrl: './editar-ticket.css'
 })
 export class EditarTicketComponent implements OnInit {
-  private ticketService = inject(TicketService);
-  private route = inject(ActivatedRoute);
-  private router = inject(Router);
-  private cdr = inject(ChangeDetectorRef);
+  id = 0;
+  cargando = true;
+  cargaFallida = false; // si es true no se muestra el formulario
   error = '';
 
-  id!: number;
-  ticket: Ticket = {
-    asunto: '',
-    solicitante: '',
-    descripcion: '',
-    categoria: '',
-    prioridad: '',
-    estado: ''
-  };
+  formulario = new FormGroup({
+    solicitante: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required, Validators.maxLength(100)]
+    }),
+    asunto: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required, Validators.minLength(5), Validators.maxLength(150)]
+    }),
+    categoria: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    prioridad: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    estado: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    descripcion: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required, Validators.minLength(10)]
+    })
+  });
 
- ngOnInit(): void {
-  this.id = Number(this.route.snapshot.paramMap.get('id'));
-  if (this.id) {
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private ticketService: TicketService,
+    private cdr: ChangeDetectorRef
+  ) {}
+
+  ngOnInit(): void {
+    this.id = Number(this.route.snapshot.paramMap.get('id'));
+    if (!this.id) {
+      this.error = 'Identificador de ticket inválido.';
+      this.cargaFallida = true;
+      this.cargando = false;
+      return;
+    }
+
     this.ticketService.getTicketById(this.id).subscribe({
-      next: (data) => {
-        this.ticket = data;
-        this.cdr.detectChanges(); // dibuja los datos en el formulario
+      next: (ticket) => {
+        // patchValue rellena el formulario con los datos que vienen de la base de datos
+        this.formulario.patchValue({
+          solicitante: ticket.solicitante,
+          asunto: ticket.asunto,
+          categoria: ticket.categoria,
+          prioridad: ticket.prioridad,
+          estado: ticket.estado,
+          descripcion: ticket.descripcion
+        });
+        this.cargando = false;
+        this.cdr.detectChanges();
       },
-      error: (err) => {
-        console.error('Error al obtener el ticket:', err);
-        this.error = this.mensajeError(err, 'No se pudo cargar el ticket');
+      error: (error) => {
+        console.error(error);
+        this.error = 'No fue posible cargar el ticket.';
+        this.cargaFallida = true;
+        this.cargando = false;
         this.cdr.detectChanges();
       }
     });
   }
-}
 
-actualizar(): void {
-  this.error = '';
-  if (!this.ticket.asunto.trim() || !this.ticket.solicitante.trim() || !this.ticket.descripcion.trim()) {
-    this.error = 'Complete solicitante, asunto y descripción.';
-    return;
-  }
-  this.ticketService.updateTicket(this.id, this.ticket).subscribe({
-    next: () => {
-      alert('Ticket actualizado correctamente');
-      this.router.navigate(['/tickets']);
-    },
-    error: (err) => {
-      console.error('Error al actualizar el ticket:', err);
-      this.error = this.mensajeError(err, 'No se pudo actualizar el ticket');
-      this.cdr.detectChanges();
+  guardar(): void {
+    this.error = '';
+    if (this.formulario.invalid) {
+      this.formulario.markAllAsTouched();
+      return;
     }
-  });
-}
 
-private mensajeError(err: any, accion: string): string {
-  if (err.status === 0) return `${accion}: no hay conexión con el servidor (¿está encendida la API?).`;
-  return `${accion}: ${err.error?.mensaje ?? 'error inesperado'}.`;
-}
+    this.ticketService.updateTicket(this.id, this.formulario.getRawValue()).subscribe({
+      next: () => this.router.navigate(['/tickets']),
+      error: (error) => {
+        console.error(error);
+        this.error = 'No fue posible actualizar el ticket. Verifique que la API esté encendida.';
+        this.cdr.detectChanges();
+      }
+    });
+  }
 }

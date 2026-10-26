@@ -1,58 +1,61 @@
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { TicketService } from '../../services/ticket';
 import { Ticket } from '../../models/ticket';
+import { TicketService } from '../../services/ticket';
 
 @Component({
   selector: 'app-tickets',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [RouterLink, DatePipe],
   templateUrl: './tickets.html',
   styleUrl: './tickets.css'
 })
 export class TicketsComponent implements OnInit {
-  private ticketService = inject(TicketService);
-  private cdr = inject(ChangeDetectorRef);
-
   tickets: Ticket[] = [];
+  cargando = true;
   error = '';
+
+  constructor(
+    private ticketService: TicketService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.cargarTickets();
   }
 
   cargarTickets(): void {
+    this.cargando = true;
     this.error = '';
     this.ticketService.getTickets().subscribe({
-      next: (data) => {
-        this.tickets = data;
-        this.cdr.detectChanges();
+      next: (datos) => {
+        this.tickets = datos;
+        this.cargando = false;
+        this.cdr.detectChanges(); // la app es zoneless: se avisa a Angular que redibuje
       },
-      error: (err) => {
-        console.error('Error al obtener los tickets:', err);
-        this.error = 'No se pudieron cargar los tickets. Verifique que la API esté encendida.';
+      error: (error) => {
+        console.error(error);
+        this.error = 'No fue posible obtener los tickets. Verifique que la API esté encendida.';
+        this.cargando = false;
         this.cdr.detectChanges();
       }
     });
   }
 
-  eliminar(id?: number): void {
-    if (!id) return;
-    if (confirm('¿Estás seguro de que deseas eliminar este ticket?')) {
-      this.ticketService.deleteTicket(id).subscribe({
-        next: () => {
-          alert('Ticket eliminado correctamente');
-          this.cargarTickets();
-        },
-        error: (err) => {
-          console.error('Error al eliminar el ticket:', err);
-          alert('No se pudo eliminar el ticket. Intente nuevamente.');
-        }
-      });
-    }
+  eliminar(id: number): void {
+    if (!confirm('¿Desea eliminar este ticket?')) return;
+
+    this.ticketService.deleteTicket(id).subscribe({
+      next: () => this.cargarTickets(),
+      error: (error) => {
+        console.error(error);
+        alert('No fue posible eliminar el ticket.');
+      }
+    });
   }
 
+  // "En Proceso" -> "en-proceso": se usa como clase CSS para el color del distintivo
   clase(valor: string): string {
     return valor.toLowerCase().replace(/\s+/g, '-');
   }

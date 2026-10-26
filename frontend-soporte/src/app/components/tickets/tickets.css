@@ -1,7 +1,34 @@
-.badge { display:inline-block; padding:3px 10px; border-radius:12px; font-size:0.8rem; font-weight:bold; color:white; }
-.prioridad-alta { background:#dc3545; }
-.prioridad-media { background:#fd7e14; }
-.prioridad-baja { background:#6c757d; }
-.estado-abierto { background:#0d6efd; }
-.estado-en-proceso { background:#ffc107; color:#000; }
-.estado-cerrado { background:#198754; }
+.encabezado {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+.encabezado h2 { margin: 0; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.08);
+}
+th { background: #212529; color: white; text-align: left; padding: 12px; }
+td { padding: 12px; border-bottom: 1px solid #dee2e6; }
+.vacio { text-align: center; color: #6c757d; padding: 20px; }
+.acciones { white-space: nowrap; display: flex; gap: 6px; }
+
+/* Distintivos de color para prioridad y estado */
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: white;
+}
+.prioridad-alta { background: #dc3545; }
+.prioridad-media { background: #fd7e14; }
+.prioridad-baja { background: #6c757d; }
+.estado-abierto { background: #0d6efd; }
+.estado-en-proceso { background: #ffc107; color: #000; }
+.estado-cerrado { background: #198754; }

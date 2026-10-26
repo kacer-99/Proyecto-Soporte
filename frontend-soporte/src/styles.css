@@ -1,1 +1,58 @@
 /* You can add global styles to this file, and also import other style files */
+/* Estilos globales compartidos por todos los componentes */
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: #f1f3f5;
+  color: #212529;
+}
+
+main { padding: 2rem; max-width: 1200px; margin: 0 auto; }
+
+/* Botones */
+.btn {
+  display: inline-block;
+  padding: 8px 14px;
+  border: 0;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  text-decoration: none;
+  cursor: pointer;
+  color: white;
+  background: #0d6efd;
+}
+.btn-verde { background: #198754; }
+.btn-amarillo { background: #ffc107; color: #000; }
+.btn-rojo { background: #dc3545; }
+.btn-gris { background: #6c757d; }
+.btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* Tarjeta y formularios */
+.tarjeta {
+  max-width: 650px;
+  margin: 0 auto;
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+.campo { margin-bottom: 1rem; }
+.campo label { display: block; font-weight: bold; margin-bottom: 5px; }
+.campo input, .campo select, .campo textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #adb5bd;
+  border-radius: 4px;
+  font: inherit;
+}
+.campo input.invalido, .campo select.invalido, .campo textarea.invalido { border-color: #dc3545; }
+.campo small { display: block; margin-top: 4px; color: #dc3545; }
+.botones { display: flex; gap: 10px; margin-top: 1.5rem; }
+
+/* Mensajes */
+.mensaje { padding: 12px 16px; border-radius: 4px; margin-bottom: 1rem; }
+.mensaje-error { background: #f8d7da; color: #842029; border: 1px solid #f5c2c7; }
+.mensaje-ok { background: #d1e7dd; color: #0f5132; border: 1px solid #badbcc; }

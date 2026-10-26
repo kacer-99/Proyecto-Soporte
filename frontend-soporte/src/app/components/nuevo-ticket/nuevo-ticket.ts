@@ -1,50 +1,54 @@
-import { Component, inject, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { ChangeDetectorRef, Component } from '@angular/core';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { TicketService } from '../../services/ticket';
-import { Ticket } from '../../models/ticket';
 
 @Component({
   selector: 'app-nuevo-ticket',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './nuevo-ticket.html',
   styleUrl: './nuevo-ticket.css'
 })
 export class NuevoTicketComponent {
-  private ticketService = inject(TicketService);
-  private router = inject(Router);
-  private cdr = inject(ChangeDetectorRef);
-
   error = '';
 
-  ticket: Ticket = {
-    asunto: '',
-    solicitante: '',
-    descripcion: '',
-    categoria: 'Soporte General',
-    prioridad: 'Media',
-    estado: 'Abierto'
-  };
+  formulario = new FormGroup({
+    solicitante: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required, Validators.maxLength(100)]
+    }),
+    asunto: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required, Validators.minLength(5), Validators.maxLength(150)]
+    }),
+    categoria: new FormControl('Soporte General', { nonNullable: true, validators: [Validators.required] }),
+    prioridad: new FormControl('Media', { nonNullable: true, validators: [Validators.required] }),
+    estado: new FormControl('Abierto', { nonNullable: true, validators: [Validators.required] }),
+    descripcion: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required, Validators.minLength(10)]
+    })
+  });
+
+  constructor(
+    private ticketService: TicketService,
+    private router: Router,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   guardar(): void {
     this.error = '';
-    if (!this.ticket.asunto.trim() || !this.ticket.solicitante.trim() || !this.ticket.descripcion.trim()) {
-      this.error = 'Complete solicitante, asunto y descripción.';
+    if (this.formulario.invalid) {
+      this.formulario.markAllAsTouched();
       return;
     }
 
-    this.ticketService.createTicket(this.ticket).subscribe({
-      next: () => {
-        alert('Ticket creado con éxito');
-        this.router.navigate(['/tickets']);
-      },
-      error: (err) => {
-        console.error('Error al crear el ticket:', err);
-        this.error = err.status === 0
-          ? 'No hay conexión con el servidor (¿está encendida la API?).'
-          : (err.error?.mensaje ?? 'No se pudo crear el ticket.');
+    this.ticketService.createTicket(this.formulario.getRawValue()).subscribe({
+      next: () => this.router.navigate(['/tickets']),
+      error: (error) => {
+        console.error(error);
+        this.error = 'No fue posible registrar el ticket. Verifique que la API esté encendida.';
         this.cdr.detectChanges();
       }
     });

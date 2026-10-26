@@ -1,14 +1,13 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Ticket } from '../models/ticket';
+import { Ticket, TicketNuevo } from '../models/ticket';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class TicketService {
-  private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:3000/api/tickets';
+  private readonly apiUrl = 'http://localhost:3000/api/tickets';
+
+  constructor(private http: HttpClient) {}
 
   getTickets(): Observable<Ticket[]> {
     return this.http.get<Ticket[]>(this.apiUrl);
@@ -18,15 +17,15 @@ export class TicketService {
     return this.http.get<Ticket>(`${this.apiUrl}/${id}`);
   }
 
-  createTicket(ticket: Ticket): Observable<Ticket> {
+  createTicket(ticket: TicketNuevo): Observable<Ticket> {
     return this.http.post<Ticket>(this.apiUrl, ticket);
   }
 
-  updateTicket(id: number, ticket: Ticket): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${id}`, ticket);
+  updateTicket(id: number, ticket: TicketNuevo): Observable<{ mensaje: string }> {
+    return this.http.put<{ mensaje: string }>(`${this.apiUrl}/${id}`, ticket);
   }
 
-  deleteTicket(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`);
+  deleteTicket(id: number): Observable<{ mensaje: string }> {
+    return this.http.delete<{ mensaje: string }>(`${this.apiUrl}/${id}`);
   }
 }
